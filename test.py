@@ -35,7 +35,7 @@ if __name__ == '__main__':
     ]
 
     ## Containtment parameters
-    tc = 15
+    tc = 10
     params[-2] = tc
     tf = 10
     params[-1] = tf

@@ -73,13 +73,13 @@ def iterate_model(x0, T, params, ext_params):
     ## PRECOMPUTING
     # Compute probability of infection
     # >1-D
-    # ρ_t_eff = get_ρ_ig_eff(x0[2]+ν*x0[3] , n_ig, n_ig_eff, R_ij, C_gh, pg, one_minus_pg)
-    # Q_t = Q_ig( zk_g, f_i, ρ_t_eff )
-    # P_t = P_ig(β, Q_t)
-    # Π_t = Π_ig( P_t, R_ij, pg, one_minus_pg)
+    ρ_t_eff = get_ρ_ig_eff(x0[2]+ν*x0[3] , n_ig, n_ig_eff, R_ij, C_gh, pg, one_minus_pg)
+    Q_t = Q_ig( zk_g, f_i, ρ_t_eff )
+    P_t = P_ig(β, Q_t)
+    Π_t = Π_ig( P_t, R_ij, pg, one_minus_pg)
 
     # 1-D treatment
-    Π_t = Π_1D( x0[2]+ ν*x0[3], β, kg)
+    # Π_t = Π_1D( x0[2]+ ν*x0[3], β, kg)
 
     # Compute interaction terms
     M_SS = 1 - Π_t
@@ -116,30 +116,37 @@ def iterate_model(x0, T, params, ext_params):
         # Containtment
         if t+1 == tc:
             # mid-agers (1-D treatment)
-            kg = (1-κ0)*kg + κ0*(σ-1)
+            kg[1] = (1-κ0)*kg[1] + κ0*(σ-1)
             pg = (1-κ0)*pg
 
-            # 1-D treatment
-            Π_t = Π_1D( x_new[2]+ν*x_new[3], β, kg )
+            # In the model, the mobility matrix R_ij remains constant even after containment
+            ρ_t_eff = get_ρ_ig_eff( x_new[2]+ν*x_new[3] , n_ig, n_ig_eff, R_ij, C_gh, pg, one_minus_pg)
+            Q_t = Q_ig( zk_g, f_i, ρ_t_eff )
+            P_t = P_ig(β, Q_t)
+            Π_t = Π_ig( P_t, R_ij, pg, one_minus_pg)
 
-            ## Contained people (susceptible + recovered) (no 1-D treatment here)
-            # C_tc = ( np.dot( x_new[0]+x_new[5], n_ig ) / get_n_i(n_ig) )**σ
+            ## Contained people (susceptible + recovered)
+            C_tc = ( get_n_i( (x_new[0]+x_new[5]) * n_ig ) / get_n_i(n_ig) )**σ
+            C_tc = C_tc.reshape(len(C_tc), 1 ) # This reshape is only for dimension coherency
 
             # 1-D treatment
-            C_tc = ( x_new[0]+x_new[5] )**σ
+            # Π_t = Π_1D( x_new[2]+ν*x_new[3], β, kg )
+
+            # 1-D treatment
+            # C_tc = ( x_new[0]+x_new[5] )**σ
 
             # update dynamic interaction terms
             M[0] = (1 - Π_t)*(1 - (1 - ϕ)*κ0*C_tc)
             M[1] = Π_t*(1 - (1 - ϕ)*κ0*C_tc)
         else:
             # compute new prob. of infection
-            # ρ_t_eff = get_ρ_ig_eff( x_new[2]+ν*x_new[3] , n_ig, n_ig_eff, R_ij, C_gh, pg, one_minus_pg)
-            # Q_t = Q_ig( zk_g, f_i, ρ_t_eff )
-            # P_t = P_ig(β, Q_t)
-            # Π_t = Π_ig( P_t, R_ij, pg, one_minus_pg)
+            ρ_t_eff = get_ρ_ig_eff( x_new[2]+ν*x_new[3] , n_ig, n_ig_eff, R_ij, C_gh, pg, one_minus_pg)
+            Q_t = Q_ig( zk_g, f_i, ρ_t_eff )
+            P_t = P_ig(β, Q_t)
+            Π_t = Π_ig( P_t, R_ij, pg, one_minus_pg)
 
             # 1-D treatment
-            Π_t = Π_1D( x_new[2]+ν*x_new[3], β, kg )
+            # Π_t = Π_1D( x_new[2]+ν*x_new[3], β, kg )
 
             # update dynamic interaction terms
             M[0] = (1 - Π_t)
@@ -151,17 +158,18 @@ def iterate_model(x0, T, params, ext_params):
             kg = (kg - κ0*(σ-1))/(1 - κ0)
             pg = pg/(1 - κ0)
 
+            ρ_t_eff = get_ρ_ig_eff( x_new[2]+ν*x_new[3] , n_ig, n_ig_eff, R_ij, C_gh, pg, one_minus_pg)
+            Q_t = Q_ig( zk_g, f_i, ρ_t_eff )
+            P_t = P_ig(β, Q_t)
+            Π_t = Π_ig( P_t, R_ij, pg, one_minus_pg)
+
             # 1-D treatment
-            Π_t = Π_1D( x_new[2]+ν*x_new[3], β, kg )
+            # Π_t = Π_1D( x_new[2]+ν*x_new[3], β, kg )
 
             # update dynamic interaction terms
             M[0] = (1 - Π_t)*(1 + (1 - ϕ)*κ0*C_tc)
             M[1] = Π_t*(1 + (1 - ϕ)*κ0*C_tc)
 
-
-
         x_old = x_new
-
-
 
     return flow

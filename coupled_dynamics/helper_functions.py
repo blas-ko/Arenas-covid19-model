@@ -2,7 +2,6 @@
 
 import numpy as np
 
-
 # NG : cardinality of the age strata
 # NP : number of patches (regions)
 
@@ -97,6 +96,8 @@ def Π_ig( P_t, R_ij, pg, one_minus_pg ):
     '''
     return one_minus_pg * P_t  +  pg *  np.dot( R_ij, P_t )
 
+
+## Use this when running the aggregate one-dimensional model
 # 1D treatment
 def Π_1D(ρ, β, kg):
     '''

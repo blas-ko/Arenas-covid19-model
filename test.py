@@ -4,8 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from arenas_model import *
-from  data_handling.parameters import get_params_arenas
-
+import arenas_params as ap
 
 def main():
     # Set number of compartiments (S,E,A,I,H,Rᴵ,Rᴴ,D -> 8)
@@ -19,13 +18,32 @@ def main():
     ##--SET MODEL PARAMETERS--##
 
     # Arenas parameters (χ is repeated for the new model with one more compartiment)
-    params = get_params_arenas()
+    params = [
+        ap.β,  # 0 : β
+        ap.kg, # 1 : k
+        ap.η,  # 2 : η
+        ap.αg, # 3 : α
+        ap.ν,  # 4 : ν
+        ap.μg, # 5 : μ
+        ap.γg, # 6 : γ
+        ap.ωg, # 7 : ω
+        ap.ψg, # 8 : ψ
+        ap.χg, # 9 : χᴵ
+        ap.χg, # 10: χᴴ
+        0,     # 11: N
+        ap.σ,  # 12: σ
+        ap.κ0, # 13: κ0
+        ap.ϕ,  # 14: ϕ
+        ap.tc, # 15: days from t0 to confinement
+        ap.tf, # 16: days from confinement to reactivation
+        ap.κf, # 17: new normality parameter
+         ]
 
     ## Containtment parameters
     tc = 10
-    params[-2] = tc
+    params[-3] = tc
     tf = 10
-    params[-1] = tf
+    params[-2] = tf
 
     ##--SET ARTIFICIAL INITIAL CONDITIONS--##
     # I'll put a small amount of asymptomatic cases. The rest will be all susceptible.
